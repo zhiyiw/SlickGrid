@@ -1,12 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>SlickGrid example 5: Collapsing</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">  
+    <title>SlickGrid example 5: Collapsing</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
-  <style>
+    <link rel="stylesheet" href="../plugins/slick.headermenu.css" type="text/css"/>
+    <style>
     .cell-title {
       font-weight: bold;
     }
@@ -16,59 +17,83 @@
     }
 
     .toggle {
-      height: 9px;
-      width: 9px;
+      height: 10px;
+      width: 10px;
       display: inline-block;
     }
 
     .toggle.expand {
-      background: url(../images/expand.gif) no-repeat center center;
+      background: url(../images/dropdown_arrow_plus_10x10.png) no-repeat center center;
     }
 
     .toggle.collapse {
-      background: url(../images/collapse.gif) no-repeat center center;
+      background: url(../images/dropdown_arrow_minus_10x10.png) no-repeat center center;
+    }
+
+
+
+
+    .slick-header-menu {
+      border: 1px solid #718BB7;
+      background: #a4bac3;
+      padding: 0px;  
+
+      -moz-box-shadow: 2px 2px 2px silver;
+      -webkit-box-shadow: 2px 2px 2px silver;
+      min-width: 100px;
+      z-index: 20;
+    }
+
+
+    .slick-header-menuitem {
+      color:##4A4A4A;
+      font-weight:bold;
+
+      
+      padding: 6px 10px;
+   //   border-bottom:1px solid white;
+       border-bottom:1px solid #8fa4ad;
+     // border: 1px solid;
+      //border-radius: 3px;
+    }
+
+    .slick-header-menuitem:hover {
+      border-color: silver;
+      background: white;
+    }
+
+    .slick-header-menuitem-disabled {
+      border-color: transparent !important;
+      background: inherit !important;
+    }
+
+    .icon-help {
+      background-image: url(../images/help.png);
     }
 
   </style>
+
+
+
+
 </head>
 <body>
-<table width="100%">
-  <tr>
-    <td valign="top" width="50%">
-      <div style="border:1px solid gray;background:wheat;padding:6px;">
-        <label>Show tasks with % at least: </label>
+   <div id="myGrid" style="width:90%;height:500px;"></div>
 
-        <div style="padding:4px;">
-          <div style="width:100px;" id="pcSlider"></div>
-        </div>
-        <br/>
-        <label>And title including:</label>
-        <input type=text id="txtSearch">
-      </div>
-      <br/>
-
-      <div id="myGrid" style="width:600px;height:500px;"></div>
-    </td>
-    <td valign="top">
-      <h2>Demonstrates:</h2>
-      <ul>
-        <li>implementing expand/collapse as a filter for DataView</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
-<!-- <script src="../lib/firebugx.js"></script> -->
 
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
 <script src="../slick.core.js"></script>
+<script src="../plugins/slick.cellrangedecorator.js"></script>
+<script src="../plugins/slick.cellrangeselector.js"></script>
+<script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../slick.formatters.js"></script>
 <script src="../slick.editors.js"></script>
 <script src="../slick.grid.js"></script>
 <script src="../slick.dataview.js"></script>
+<script src="../plugins/slick.headermenu.js"></script>
 
 <script>
 function requiredFieldValidator(value) {
@@ -77,7 +102,7 @@ function requiredFieldValidator(value) {
   } else {
     return {valid: true, msg: null};
   }
-}
+};
 
 
 var TaskNameFormatter = function (row, cell, value, columnDef, dataContext) {
@@ -88,6 +113,7 @@ var TaskNameFormatter = function (row, cell, value, columnDef, dataContext) {
     if (dataContext._collapsed) {
       return spacer + " <span class='toggle expand'></span>&nbsp;" + value;
     } else {
+    
       return spacer + " <span class='toggle collapse'></span>&nbsp;" + value;
     }
   } else {
@@ -95,10 +121,11 @@ var TaskNameFormatter = function (row, cell, value, columnDef, dataContext) {
   }
 };
 
+
 var dataView;
-var grid;
-var data = [];
-var columns = [
+  var grid;
+  var data = [];
+  var columns = [
   {id: "title", name: "Title", field: "title", width: 220, cssClass: "cell-title", formatter: TaskNameFormatter, editor: Slick.Editors.Text, validator: requiredFieldValidator},
   {id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text},
   {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete},
@@ -107,13 +134,53 @@ var columns = [
   {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox, cannotTriggerInsert: true}
 ];
 
-var options = {
-  editable: false,
+
+//header menu:
+
+  for (var i = 0; i < columns.length; i++) {
+    columns[i].header = {
+      menu: {
+        items: [
+          {
+            iconImage: "../images/menu_runtest_17x17.png",
+            title: "Run Test",
+            command: "sort-asc"
+          },
+          {
+            iconImage: "../images/menu_viewreport_17x17.png",
+            title: "View Report",
+            command: "sort-desc"
+          },
+           {
+            iconImage: "../images/menu_delete_17x17.png",
+            title: "Delete",
+            command: "sort-desc"
+          },
+          {
+            title: "Hide Column",
+            command: "hide",
+            disabled: true,
+            tooltip: "Can't hide this column"
+          },
+          {
+            iconCssClass: "icon-help",
+            title: "Help",
+            command: "help"
+          }
+        ]
+      }
+    };
+  }
+
+
+  var options = {
+     editable: false,
   enableAddRow: true,
   enableCellNavigation: true,
   asyncEditorLoading: false,
-  enableTextSelectionOnCells: true
-};
+  enableTextSelectionOnCells: true,
+    forceFitColumns: true
+  };
 
 var percentCompleteThreshold = 0;
 var searchString = "";
@@ -146,8 +213,22 @@ function percentCompleteSort(a, b) {
   return a["percentComplete"] - b["percentComplete"];
 }
 
-$(function () {
-  var indent = 0;
+
+
+  $(function () {
+    // var data = [];
+    // for (var i = 0; i < 10; i++) {
+    //   data[i] = {
+    //     title: "Task " + i,
+    //     duration: "5 days",
+    //     percentComplete: Math.round(Math.random() * 100),
+    //     start: "01/01/2009",
+    //     finish: "01/05/2009",
+    //     effortDriven: (i % 5 == 0)
+    //   };
+    // }
+
+ var indent = 0;
   var parents = [];
 
   // prepare the data
@@ -176,11 +257,10 @@ $(function () {
     d["title"] = "Task " + i;
     d["duration"] = "5 days";
     d["percentComplete"] = Math.round(Math.random() * 100);
-    d["start"] = "01/01/2009";
-    d["finish"] = "01/05/2009";
+    d["start"] = "01/10/2013";
+    d["finish"] = "01/25/2013";
     d["effortDriven"] = (i % 5 == 0);
   }
-
 
   // initialize the model
   dataView = new Slick.Data.DataView({ inlineFilters: true });
@@ -190,14 +270,34 @@ $(function () {
   dataView.endUpdate();
 
 
-  // initialize the grid
-  grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
-  grid.onCellChange.subscribe(function (e, args) {
+    dataView.getItemMetadata = function (row) {
+      if (row % 2 === 0) {
+        return {
+          "columns": {
+            "duration": {
+              "colspan": 1
+            }
+          }
+        };
+      } else {
+        return {
+          "columns": {
+            0: {
+              "colspan": "*"
+            }
+          }
+        };
+      }
+    };
+
+    grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+    grid.onCellChange.subscribe(function (e, args) {
     dataView.updateItem(args.item.id, args.item);
   });
 
-  grid.onAddNewRow.subscribe(function (e, args) {
+    grid.onAddNewRow.subscribe(function (e, args) {
     var item = {
       "id": "new_" + (Math.round(Math.random() * 10000)),
       "indent": 0,
@@ -211,7 +311,8 @@ $(function () {
     dataView.addItem(item);
   });
 
-  grid.onClick.subscribe(function (e, args) {
+
+     grid.onClick.subscribe(function (e, args) {
     if ($(e.target).hasClass("toggle")) {
       var item = dataView.getItem(args.row);
       if (item) {
@@ -230,46 +331,39 @@ $(function () {
 
   // wire up model events to drive the grid
   dataView.onRowCountChanged.subscribe(function (e, args) {
+       console.log(e);
     grid.updateRowCount();
     grid.render();
   });
 
   dataView.onRowsChanged.subscribe(function (e, args) {
+    console.log(e);
     grid.invalidateRows(args.rows);
     grid.render();
   });
 
 
-  var h_runfilters = null;
+    var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
-  // wire up the slider to apply the filter to the model
-  $("#pcSlider").slider({
-    "range": "min",
-    "slide": function (event, ui) {
-      Slick.GlobalEditorLock.cancelCurrentEdit();
+    // headerMenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
+    //   var menu = args.menu;
 
-      if (percentCompleteThreshold != ui.value) {
-        window.clearTimeout(h_runfilters);
-        h_runfilters = window.setTimeout(dataView.refresh, 10);
-        percentCompleteThreshold = ui.value;
-      }
-    }
-  });
+    //   // We can add or modify the menu here, or cancel it by returning false.
+    //   var i = menu.items.length;
+    //   menu.items.push({
+    //     title: "Menu item " + i,
+    //     command: "item" + i
+    //   });
+    // });
 
+    headerMenuPlugin.onCommand.subscribe(function(e, args) {
+      alert("Command: " + args.command);
+    });
 
-  // wire up the search textbox to apply the filter to the model
-  $("#txtSearch").keyup(function (e) {
-    Slick.GlobalEditorLock.cancelCurrentEdit();
+    grid.registerPlugin(headerMenuPlugin);
 
-    // clear on Esc
-    if (e.which == 27) {
-      this.value = "";
-    }
-
-    searchString = this.value;
-    dataView.refresh();
+//    grid.setSelectionModel(new Slick.CellSelectionModel());
   })
-})
 </script>
 </body>
 </html>
