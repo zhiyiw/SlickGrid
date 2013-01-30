@@ -87,7 +87,7 @@ classes should alter those!
   position: absolute;
 
   border: 1px solid transparent;
-  border-right: 1px dotted silver;
+  
   border-bottom-color: silver;
 
   overflow: hidden;

@@ -6,7 +6,7 @@ classes should alter those!
 */
 
 .slick-header-columns {
-  background: url('../images/header-columns-bg.gif') repeat-x center bottom;
+  background: url('../images/header-columns-bg.gif') repeat-x center bottom;  
 //  border-bottom: 1px solid silver;
 }
 
@@ -29,9 +29,7 @@ classes should alter those!
   height: 100%;
 }
 
-.slick-row.ui-state-active {
-  background: #F5F7D7;
-}
+
 
 .slick-row {
   position: absolute;
@@ -77,10 +75,10 @@ classes should alter those!
   background-color: beige;
 }
 
-.slick-cell.active {
+/*.slick-cell.active {
   border-color: gray;
   border-style: solid;
-}
+}*/
 
 .slick-sortable-placeholder {
   background: silver !important;

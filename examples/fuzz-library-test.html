@@ -63,8 +63,18 @@ var FuzzNameFormatter = function(row, cell, value, columnDef, dataContext) {
 
 var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
     value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+   //   console.log(value);
     var spacer = "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>";
     var idx = dataView.getIdxById(dataContext.id);
+    //     if(data[idx].parent != null){
+    //   console.log(data[idx].parent);
+
+
+
+    // }
+
+   
+  // console.log(idx); 
     if(data[idx + 1] && data[idx + 1].indent > data[idx].indent) {
       if(dataContext._collapsed) {
         return spacer + " <span class='toggle expand'></span>&nbsp;" + value;
@@ -74,7 +84,11 @@ var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
       }
     } else {
       return spacer + " <span class='toggle'></span>&nbsp;" + value;
-    }
+    };
+  
+
+
+
   };
 
 
@@ -213,7 +227,7 @@ function myFilter(item) {
     return false;
   }
 
-  if(item.parent != null) {
+  if(item.parent != null) {   //this methods control the show/hide child
     var parent = data[item.parent];
 
     while(parent) {
@@ -234,55 +248,97 @@ function percentCompleteSort(a, b) {
 
 
 $(function() {
-  // var data = [];
-  // for (var i = 0; i < 10; i++) {
-  //   data[i] = {
-  //     title: "Task " + i,
-  //     protocol: "5 days",
-  //     percentComplete: Math.round(Math.random() * 100),
-  //     created: "01/01/2009",
-  //     finish: "01/05/2009",
-  //     effortDriven: (i % 5 == 0)
-  //   };
-  // }
+
   var indent = 0;
-  var parents = [];
+ var parents = [];
 
 
-  // prepare the data
-  for(var i = 0; i < 100; i++) {
-    var d = (data[i] = {});
-    var parent = null;
+ var testChildName = ["Suites", "Restarter Command", "Recovery Time", "Monitor Command", "Fault Patterns"]
 
-    if(Math.random() > 0.8) {
-      indent++;
-      parent = i - 1;
-    console.log("parent"+parent);
-      parents.push(parent);
-    } else if(Math.random() < 0.3 && indent > 0) {
-      indent--;
-      parent = parents.pop();
-    } else if(parents.length > 0) {
+ // prepare the data
+
+ for(var i = 0; i < 60; i++) {
+  var d = (data[i] = {});
+  var parent = null;
+  //prepare parent data:
+  if(i % 6 != 0) { //child
+    indent = 1;
+   // console.log(indent);
+  //   console.log(i);
+    parent = parseInt(i/6) * 6;
+    d["parent"] = parent;
+    parents.push(parent);
+
+    switch(i % 6) {
+    case 1:
+
+      d["name"] = testChildName[0];
+      d["protocol"] = "BGP Messages, BGP Route Flap";
+      break;
+    case 2:
+      d["name"] = testChildName[1];
+      d["protocol"] = "start /r /d p:0:0";
+      break;
+    case 3:
+
+      d["name"] = testChildName[2];
+      d["protocol"] = "60 s";;
+      break;
+    case 4:
+
+      d["name"] = testChildName[3];
+      d["protocol"] = "timed_fault 150 3";;
+      break;
+    case 5:
+
+      d["name"] = testChildName[4];
+      d["protocol"] = "greater than 70 /cpu\\:\\s(\\d+)/";;
+      break;
+    };
+
+
+  } else if(i % 6 == 0) { //back to parent
+    indent = 0;
+ 
+    parent = parents.pop();
+    d["parent"] = null;
+    d["name"] = "Test " + i/6;
+    d["protocol"] = "HTTP";
+    //d["_collapsed"] = true;  //this controls the parent ini action of collaper
+  } else if (parents.length > 0) {
       parent = parents[parents.length - 1];
     }
 
-    if(indent == 0) {
-      parent = null;
-    }
+  if(indent == 0) {
+    parent = null;
+  }
 
-    d["id"] = "id_" + i;
-    d["indent"] = indent;
-    d["parent"] = parent;
-    d["name"] = "Task " + i;
-    d["protocol"] = "HTTP";
-    d["restater"] = Math.round(Math.random() * 10);
-    d["monitors"] = Math.round(Math.random() * 1 + 1);
-    d["suites"] = Math.round(Math.random() * 100);
-    d["percentComplete"] = Math.round(Math.random() * 100);
-    d["created"] = "01/10/2013";
-    // d["finish"] = "01/25/2013";
-    d["effortDriven"] = (i % 5 == 0);
-    }
+
+  d["id"] = "id_" + i;
+  d["indent"] = indent;
+
+
+  d["restater"] = Math.round(Math.random() * 10);
+  d["monitors"] = Math.round(Math.random() * 1 + 1);
+  d["suites"] = Math.round(Math.random() * 100);
+  d["percentComplete"] = Math.round(Math.random() * 100);
+  d["created"] = "01/10/2013";
+  // d["finish"] = "01/25/2013";
+  d["effortDriven"] = (i % 5 == 0);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+   
   // initialize the model
   dataView = new Slick.Data.DataView({inlineFilters: true});
   dataView.beginUpdate();
@@ -291,26 +347,66 @@ $(function() {
   dataView.endUpdate();
 
 
- // // code to test the colspan
- //  dataView.getItemMetadata = function (row) {
- //    if (row % 2 === 0) {
- //      return {
- //        "columns": {
- //          "protocol": {
- //            "colspan": 3
- //          }
- //        }
- //      };
- //    } else {
- //      return {
- //        "columns": {
- //          0: {
- //            "colspan": "*"
- //          }
- //        }
- //      };
- //    }
- //  };
+dataView.getItemMetadata = function(row) {
+  if(data[row]) {   //this is vital!!!!
+    var thtId = data[row].id;
+ console.log("row.id:"+data[row].id);
+  console.log("row:"+row);
+     console.log("parent:"+data[row].parent );
+    if(data[row].parent != null) {
+   
+      return {
+        // specify additional CSS class for a specific row
+        "columns": {
+          "protocol": {
+            "colspan": "*" 
+          }
+        }
+
+      }
+
+
+    }
+
+  }
+
+
+}
+
+
+
+
+
+// dataView.getItemMetadata = function (row) {
+    
+//     var idx = dataView.getIdxById(dataContext.id);
+//         if(data[idx].parent != null){
+//       console.log(data[idx].parent);
+
+
+
+//     }
+
+//     if (data[idx].parent != null) {
+//       return {
+//         "columns": {
+//           "protocol": {
+//             "colspan": 3
+//           }
+//         }
+//       };
+//     } else {
+//       return {
+//         "columns": {
+//           0: {
+//             "colspan": "*"
+//           }
+//         }
+//       };
+//     }
+//   };
+ // code to test the colspan
+
   grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
   grid.onCellChange.subscribe(function(e, args) {
@@ -347,18 +443,22 @@ $(function() {
       }
       e.stopImmediatePropagation();
     }
+
+
+
   });
 
 
   // wire up model events to drive the grid
   dataView.onRowCountChanged.subscribe(function(e, args) {
-    console.log(e);
+  //  console.log(e);
+
     grid.updateRowCount();
     grid.render();
   });
 
   dataView.onRowsChanged.subscribe(function(e, args) {
-    console.log(e);
+  //  console.log(e);
     grid.invalidateRows(args.rows);
     grid.render();
   });

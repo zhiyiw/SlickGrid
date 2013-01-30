@@ -1,11 +1,15 @@
 //section from slick default theme.
 .slick-header-columns {
   background: url('../images/header_columns_bg_24x4.png') repeat-x center bottom;
+
+
  // border-bottom: 1px solid silver;
 }
 
 .slick-header-column {
-  height:30px;
+    text-align:center;
+    font-weight:bold;
+  //height:30px;
   background: url('../images/header_columns_bg_24x4.png') repeat-x center bottom;
  // border-bottom: 1px solid #919292;
   border-right: 1px solid #9e9e9e;
@@ -21,11 +25,14 @@
 border-right: 1px solid #bbbfbe;
 }
 
-.slick-cell.active {
-   background: #7494a3;
-   color:white;
-  border-color: gray;
-  border-style: solid;
+
+
+
+
+
+.slick-cell.selected {
+  background-color: #7494a3;
+   color:white; //put font color reverse
 }
 
  
