@@ -347,14 +347,45 @@ $(function() {
   dataView.endUpdate();
 
 
-dataView.getItemMetadata = function(row) {
-  if(data[row]) {   //this is vital!!!!
-    var thtId = data[row].id;
- console.log("row.id:"+data[row].id);
-  console.log("row:"+row);
-     console.log("parent:"+data[row].parent );
-    if(data[row].parent != null) {
+// dataView.getItemMetadata = function(row) {
+//   if(data[row]) {   //this is vital!!!!
+//     var thtId = data[row].id;
+//  console.log("row.id:"+data[row].id);
+//   console.log("row:"+row);
+//      console.log("parent:"+data[row].parent );
+//     if(data[row].parent != null) {
    
+//       return {
+//         // specify additional CSS class for a specific row
+//         "columns": {
+//           "protocol": {
+//             "colspan": "*" 
+//           }
+//         }
+
+//       }
+
+
+//     }
+
+//   }
+
+
+// }
+
+
+
+dataView.getItemMetadata = function(row) {
+    //get the actual row of this data
+    var actualRow = row;
+    for(var i=0; i<actualRow; ++i)
+    {
+        if(data[i]._collapsed)
+            actualRow += 5;
+    }
+
+  if(data[actualRow]) {   //this is vital!!!!
+    if(data[actualRow].parent != null) {
       return {
         // specify additional CSS class for a specific row
         "columns": {
@@ -362,16 +393,11 @@ dataView.getItemMetadata = function(row) {
             "colspan": "*" 
           }
         }
-
       }
-
-
     }
-
   }
+};
 
-
-}
 
 
 
