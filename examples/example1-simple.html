@@ -57,6 +57,14 @@
         effortDriven: (i % 5 == 0)
       };
     }
+    var count = 0;
+data.getItemMetadata = function (row) {
+          count++;
+console.log("into getitemmetadata:"+row);
+          console.log("into count:"+count);
+          console.log("the data:"+ data[row].title);
+
+        }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
   })
